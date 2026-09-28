@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# outputs of MuonsGenerator.py and run.py
+muons.npy
+muons.png

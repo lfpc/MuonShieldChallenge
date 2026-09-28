@@ -1,0 +1,30 @@
+{
+    "description": "Hard: cavern walls, 72 parameters (all independent parameters of magnets 1-6), new seed every evaluation (noisy), first 100M muons of the full sample, cost <= W0.",
+    "design": "baseline",
+    "free_magnets": [1, 2, 3, 4, 5, 6],
+    "free_params": ["z_gap", "dZ", "dXIn", "dXOut", "dYIn", "dYOut", "gapIn", "gapOut",
+                    "dX_yokeIn", "dX_yokeOut", "midGapIn", "B"],
+    "bounds": {
+        "z_gap": [10, 50],
+        "dZ": [100, 350],
+        "dXIn": [5, 250],
+        "dXOut": [5, 250],
+        "dYIn": [5, 250],
+        "dYOut": [5, 250],
+        "gapIn": [2, 150],
+        "gapOut": [2, 150],
+        "dX_yokeIn": [5, 250],
+        "dX_yokeOut": [5, 250],
+        "midGapIn": [0, 150],
+        "B": [-2.0, 2.0]
+    },
+    "muons_file": "../MuonsAndMatter/data/muons/full_sample_after_target.h5",
+    "n_samples": 100000000,
+    "sensitive_plane": {"position": 82, "dx": 4, "dy": 6, "dz": 0.02},
+    "cavern": true,
+    "n_steps": 5000,
+    "seed": null,
+    "batch_size": 0,
+    "W0": 8e6,
+    "L0": 30
+}

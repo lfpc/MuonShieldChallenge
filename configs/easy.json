@@ -1,0 +1,23 @@
+{
+    "description": "Easy: no cavern, 30 parameters (length, widths and coil gaps of magnets 1-6), fixed seed (deterministic), first 10M muons of the full sample, cost <= W0.",
+    "design": "baseline",
+    "free_magnets": [1, 2, 3, 4, 5, 6],
+    "free_params": ["dZ", "dXIn", "dXOut", "gapIn", "gapOut"],
+    "bounds": {
+        "dZ": [100, 350],
+        "dXIn": [5, 250],
+        "dXOut": [5, 250],
+        "gapIn": [2, 150],
+        "gapOut": [2, 150]
+    },
+    "muons_file": "../MuonsAndMatter/data/muons/full_sample_after_target.h5",
+    "n_samples": 10000000,
+    "sensitive_plane": {"position": 82, "dx": 4, "dy": 6, "dz": 0.02},
+    "cavern": false,
+    "n_steps": 5000,
+    "seed": 1,
+    "batch_size": 0,
+    "W0": 8e6,
+    "L0": 30,
+    "output": "n_hits"
+}

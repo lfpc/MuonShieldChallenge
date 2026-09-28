@@ -1,0 +1,22 @@
+# Environment to run the simulations and build the faster_muons_torch extension (see README).
+# The CUDA toolchain (12.6) matches the CUDA version torch is built with, and gcc 13 is the newest nvcc 12.6 accepts.
+name: muonshield
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - cuda-version=12.6
+  - cuda-nvcc
+  - cuda-cudart-dev
+  - cuda-cccl
+  - libcurand-dev
+  - gxx=13
+  - numpy
+  - h5py
+  - scipy
+  - pandas
+  - matplotlib
+  - pip
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu126
+      - torch==2.7.1

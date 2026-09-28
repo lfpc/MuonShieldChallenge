@@ -1,0 +1,9 @@
+# Python packages to run the simulations. torch must be a CUDA build, e.g.
+#   pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu126
+# The faster_muons_torch extension is built separately, see README (environment.yml has the full setup).
+torch
+numpy
+h5py
+scipy   # imported by cuda_muons
+pandas  # imported by cuda_muons
+matplotlib  # only for the plots of MuonsGenerator.py
