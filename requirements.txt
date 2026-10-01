@@ -7,3 +7,5 @@ h5py
 scipy   # imported by cuda_muons
 pandas  # imported by cuda_muons
 matplotlib  # only for the plots of MuonsGenerator.py
+cma      # only for the CMA-ES baseline
+botorch  # only for the BO and TuRBO baselines

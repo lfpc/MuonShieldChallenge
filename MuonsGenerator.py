@@ -146,7 +146,7 @@ if __name__ == '__main__':
                         help='JSON file with the GMM parameters')
     parser.add_argument('--z_model', default=str(configs / 'z_beta_fit.json'),
                         help='JSON file with the Beta parameters of z')
-    parser.add_argument('--n_samples', type=int, default=1_000_000, help='number of muons')
+    parser.add_argument('--n_samples', type=int, default=100_000_000, help='number of muons')
     parser.add_argument('--seed', type=int, default=None, help='random seed; None draws one')
     parser.add_argument('--save_data', action='store_true', help='output file (N, 7)')
     parser.add_argument('--plot', default='muons.png',

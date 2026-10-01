@@ -31,7 +31,7 @@ class MuonShieldProblem:
     def __init__(self, muons_file: str, sensitive_plane: dict, free_magnets: list[int],
                  free_params: list[str], bounds: dict[str, list[float]], design='baseline',
                  n_samples: int = 0, cavern: bool = False, n_steps: int = 5000, seed: int | None = None,
-                 batch_size: int = 0, W0: float = 15e6, L0: float = 30.0, output: str = 'n_hits',
+                 batch_size: int = 0, W0: float = 15e6, L0: float = 32.0, output: str = 'n_hits',
                  device: str = 'cuda'):
         """
         Args:

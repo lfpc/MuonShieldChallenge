@@ -16,6 +16,7 @@ uniform field.
 | `utils.py` | config and muon loading, geometry, length, iron cost, cavern overlap |
 | `MuonsGenerator.py` | muon sampler from a Gaussian mixture on (pz, pt) |
 | `configs/` | the problem definitions (`easy.json`, `hard.json`) |
+| `baselines/` | black-box optimisers (random search, GA, DE, CMA-ES, BO, TuRBO) and their comparison |
 
 ## Setup
 
@@ -171,3 +172,35 @@ design = problem.design_from_phi(phi)              # full (7, 15) design
 ```
 
 `phi` can also be a full flattened design (105 values) instead of the free parameters.
+
+## Baselines
+
+`baselines/` has common black-box optimisers, to run on a config and compare:
+
+| method | |
+|---|---|
+| `random_search` | Gaussian perturbations of the reference design |
+| `ga` | genetic algorithm: tournament selection, blend crossover, Gaussian mutation, elitism |
+| `de` | differential evolution, DE/rand/1/bin |
+| `cmaes` | CMA-ES (`cma`) |
+| `bo` | Bayesian optimisation: GP + LogEI (`botorch`) |
+| `turbo` | BO in an adaptive trust region (TuRBO-1) |
+| `lcso_gd` | LCSO: per-muon hit classifier trained on many undersampled designs, trust-region step on its linear model with the exact constraints (SLSQP) (`baselines/lcso.py`) |
+| `lcso_newton` | LCSO with the quadratic model (trust-region Newton step) |
+
+```bash
+pip install cma botorch                                                  # only for cmaes, bo and turbo
+python baselines/run.py cmaes configs/easy.json --budget 200 --seed 0    # -> run cmaes_seed0 in results/baselines/easy.json
+python baselines/run.py ga configs/easy.json --options '{"pop_size": 30}'
+python baselines/compare.py results/baselines/easy.json                  # best f vs muons simulated -> easy.png
+python baselines/run_all.py configs/easy.json --gpus 0 1 2 3 --n_repeats 3   # every method n_repeats times, then compare
+```
+
+The optimisers work in the unit cube of the bounds and start from the reference design, which is always the
+first simulation: almost no design drawn uniformly in the bounds is feasible (0.2% for `easy`, none for `hard`).
+The budget counts simulated muons, in full simulations: `--budget 200` is 200 × `n_samples` muons. LCSO spends most
+of it on simulations of 1/16 of the muons (`resample_factor`), so it makes many more simulations, and the
+comparison is plotted against the number of muons simulated. Only simulations on all the muons give a best f. The
+constraints are cheap, so infeasible designs are not simulated and cost nothing: they get `f = n_samples * (1 +
+violation)`, worse than any feasible design. BO, TuRBO and LCSO only propose feasible designs. With a noisy config
+(`seed: null`), the best f of a run is optimistic: re-simulate the best design to compare.

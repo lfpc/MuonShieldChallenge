@@ -498,9 +498,5 @@
   "log_tan_theta"
  ],
  "p_min": 3.1254461153835087,
- "p_max": 400.0,
- "weight": 27148094403.25291,
- "group": null,
- "data": "/disk/users/lprate/projects/generator_muons/muons_data.h5",
- "n_rows": 2328020572
+ "p_max": 400.0
 }
