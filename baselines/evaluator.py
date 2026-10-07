@@ -77,6 +77,12 @@ class Evaluator:
               f'muons {self.n_muons / self.max_muons:.1%} of the budget', flush=True)
         return f
 
+    def charge(self, n_muons):
+        """Count n_muons simulated outside the evaluator (e.g. RL_opt's partial shields) towards the budget."""
+        if self.n_muons + n_muons > self.max_muons:
+            raise Exhausted
+        self._record(None, None, n_muons, time.time())
+
     def simulate_subset(self, u, idx):
         """Hits (bool, one per muon) of design u simulated on the muons idx of the problem's sample only, or None
         if u is infeasible (not simulated). In the history, these undersampled simulations only have their muons."""

@@ -52,12 +52,15 @@ def main():
             print(f'  {key:<16} {value:.6g}')
 
     # Order of problem.constraints: length, cost, then 4 cavern overlaps per magnet if the cavern is simulated.
-    names = ['length', 'cost'] + [f'cavern_{m}_{side}' for m in range(len(design))
-                                  for side in ('x_in', 'x_out', 'y_in', 'y_out')]
+    g = result['constraints']
     print('Constraints (feasible iff all <= 0):')
-    for name, value in zip(names, result['constraints']):
-        if value > 0 or not name.startswith('cavern'):
-            print(f'  {name:<24} {value:.4g}' + ('  VIOLATED' if value > 0 else ''))
+    for name, value in zip(['length', 'cost'], g[:2]):
+        print(f'  {name:<8} {value:.4g}' + ('  VIOLATED' if value > 0 else ''))
+    if len(g) > 2:
+        print('  cavern overlap (m)  ' + ' '.join(f'{side:>8}' for side in ('x_in', 'x_out', 'y_in', 'y_out')))
+        for m, overlaps in enumerate(np.reshape(g[2:], (-1, 4))):
+            print(f'    magnet {m}          ' + ' '.join(f'{v:8.3f}' for v in overlaps)
+                  + ('  VIOLATED' if (overlaps > 0).any() else ''))
 
     if args.output is not None:
         with open(args.output, 'w') as f:

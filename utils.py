@@ -28,10 +28,29 @@ def load_config(path: str, **overrides) -> dict:
     return config
 
 
+def sample_muons(spec: str, n_samples: int, chunk: int = 10_000_000) -> np.ndarray:
+    """n_samples muons from MuonsGenerator, as described by the JSON file spec: {'gmm': GMM file, 'z': Beta fit of z
+    (paths relative to spec), 'seed'}. Sampled in chunks, chunk i with seed seed + i, so fewer muons are the first ones
+    of more."""
+    from MuonsGenerator import MuonsGenerator
+    if n_samples <= 0:
+        raise ValueError(f'n_samples must be set to sample muons from {spec}')
+    with open(spec) as f:
+        s = json.load(f)
+    base = Path(spec).parent
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    generator = MuonsGenerator.from_file(str(base / s['gmm']), str(base / s['z']), device=device)
+    return np.concatenate([generator.sample(chunk, seed=s['seed'] + i // chunk).cpu().numpy()  # whole chunks, as
+                           for i in range(0, n_samples, chunk)])[:n_samples]  # a draw depends on its size
+
+
 def load_muons(path: str, n_samples: int = 0) -> torch.Tensor:
-    """First n_samples muons (0: all) of a .npy or .h5 file: px, py, pz, x, y, z, pdg_id. Other columns are ignored."""
+    """First n_samples muons (0: all) of a .npy or .h5 file, or n_samples muons sampled from MuonsGenerator if path
+    is a JSON description of it (see sample_muons): px, py, pz, x, y, z, pdg_id. Other columns are ignored."""
     t0 = time.time()
-    if path.endswith('.npy'):
+    if path.endswith('.json'):
+        muons = sample_muons(path, n_samples)
+    elif path.endswith('.npy'):
         muons = np.array(np.load(path, mmap_mode='r')[:n_samples or None, :7], dtype=np.float32)
     else:
         with h5py.File(path, 'r') as f:
@@ -40,7 +59,7 @@ def load_muons(path: str, n_samples: int = 0) -> torch.Tensor:
             muons = np.empty((n, len(keys)), np.float32)
             for j, key in enumerate(keys):
                 muons[:, j] = f[key][:n]
-    print(f'Loaded {len(muons):,} muons from {path} in {time.time() - t0:.1f} s')
+    print(f'{"Sampled" if path.endswith(".json") else "Loaded"} {len(muons):,} muons from {path} in {time.time() - t0:.1f} s')
     return torch.from_numpy(muons)
 
 

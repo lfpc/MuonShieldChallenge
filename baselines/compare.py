@@ -40,14 +40,14 @@ def compare(results, plot=None):
     print(f'{"method":<14} {"seeds":>5} {"muons":>10} {"best f (mean ± std)":>22} {"min":>10}')
     for method, runs in sorted(curves.items()):
         end = min(muons[-1] for muons, _ in runs)  # common range, if some runs stopped early
-        grid = np.linspace(runs[0][0][0], end, 1000)
+        grid = np.geomspace(min(muons[0] for muons, _ in runs), end, 1000)  # evenly spaced on the log axis
         best = np.array([best[np.searchsorted(muons, grid, side='right') - 1] for muons, best in runs])
         line, = ax.plot(grid, best.mean(0), label=f'{method} ({len(runs)})')
         ax.fill_between(grid, best.min(0), best.max(0), color=line.get_color(), alpha=0.2)
         final = np.array([best[-1] for _, best in runs])
         print(f'{method:<14} {len(runs):>5} {end:>10.3g} {final.mean():>12.6g} ± {final.std():<8.3g} {final.min():>10.6g}')
     ax.axhline(runs[0][1][0], color='k', ls='--', lw=1, label='reference design')
-    ax.set(xlabel='muons simulated', ylabel='best number of hits so far', title=Path(results).stem)
+    ax.set(xlabel='muons simulated', ylabel='best number of hits so far', title=Path(results).stem, xscale='log')
     ax.legend()
     plot = plot or str(Path(results).with_suffix('.png'))
     fig.savefig(plot)

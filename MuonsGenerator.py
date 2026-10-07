@@ -13,14 +13,15 @@ class MuonsGenerator:
       (log pz, log pt) for space 'log', or (logit((|p| - p_min) / (p_max - p_min)), log(pt / pz)) for space 'logit'
     - (px, py) from pt and a uniform azimuth
     - (x, y) on a ring of radius `radius` smeared by a Gaussian of width `sigma`
-    - z = (loc + scale * Beta(a, b)) / 100, the Beta being fitted in cm
+    - z = (loc + scale * Beta(a, b)) / 100 + z_offset, the Beta being fitted in cm from the target's start, which is at
+      z_offset = -2.14 m in the shield's frame (the shield starts at z = 0)
     - charge +1 or -1 with probability 0.5 (pdg_id = -13 * charge)
     Muons outside pz >= 0, pt >= 0, |p| <= p_max (the range of the propagation tables) are redrawn.
     """
 
     def __init__(self, weights, means, covariances, z_beta: dict, mean=(0.0, 0.0), std=(1.0, 1.0),
                  space: str = 'log', radius: float = 0.05, sigma: float = 0.016, p_min: float = 0.0,
-                 p_max: float = 400.0, device: str = 'cpu'):
+                 p_max: float = 400.0, z_offset: float = -2.14, device: str = 'cpu'):
         """
         Args:
             weights, means, covariances: GMM parameters, shapes (K,), (K, 2), (K, 2, 2), columns (pz, pt).
@@ -29,6 +30,7 @@ class MuonsGenerator:
             space: fit space of the GMM, 'log' or 'logit' (see the class docstring).
             radius, sigma: ring radius and Gaussian smearing of the production point (m).
             p_min, p_max: momentum range of the 'logit' space (GeV). p_max is also the maximum muon momentum.
+            z_offset: z (m) of the Beta fit's z = 0, the target's start, in the shield's frame.
             device: device the muons are sampled on.
         """
         tensor = lambda a: torch.as_tensor(np.asarray(a), dtype=torch.float32, device=device)
@@ -37,7 +39,7 @@ class MuonsGenerator:
         self.scale_tril = torch.linalg.cholesky(tensor(covariances))
         self.mean, self.std = tensor(mean).flatten(), tensor(std).flatten()
         self.z_beta, self.space, self.radius, self.sigma = z_beta, space, radius, sigma
-        self.p_min, self.p_max = p_min, p_max
+        self.p_min, self.p_max, self.z_offset = p_min, p_max, z_offset
         self.device = device
 
     @classmethod
@@ -94,7 +96,7 @@ class MuonsGenerator:
         # torch's Beta takes no generator: numpy, seeded from it
         z_rng = np.random.default_rng(int(torch.randint(2**62, (), generator=generator, device=self.device)))
         z = self.z_beta['loc'] + self.z_beta['scale'] * torch.from_numpy(z_rng.beta(self.z_beta['a'], self.z_beta['b'], n))
-        z = z / 100  # cm -> m
+        z = z / 100 + self.z_offset  # cm from the target's start -> m in the shield's frame
         charge = 2 * torch.bernoulli(torch.full((n,), 0.5, device=self.device), generator=generator) - 1
         return torch.stack([pt * phi_p.cos(), pt * phi_p.sin(), pz, x, y, z.float().to(self.device), -13 * charge], 1)
 

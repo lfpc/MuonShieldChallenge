@@ -32,7 +32,7 @@ def main():
     parser.add_argument('config', nargs='?', default=str(ROOT / 'configs' / 'easy.json'), help='problem configuration')
     parser.add_argument('--budget', type=float, default=400, help='muons per run, in full simulations (see run.py)')
     parser.add_argument('--methods', nargs='+', default=list(METHODS), choices=METHODS, help='methods to run')
-    parser.add_argument('--n_repeats', type=int, default=5, help='runs of each method, with seeds 0, ..., n_repeats - 1')
+    parser.add_argument('--n_repeats', type=int, default=3, help='runs of each method, with seeds 0, ..., n_repeats - 1')
     parser.add_argument('--gpus', nargs='+', type=int, default=[0], help='GPU indices, one run at a time on each')
     parser.add_argument('--output_dir', default=str(ROOT / 'results' / 'baselines'), help='where the runs are saved')
     args, run_args = parser.parse_known_args()

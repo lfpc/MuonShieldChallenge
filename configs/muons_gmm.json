@@ -1,0 +1,6 @@
+{
+    "description": "Muons sampled from MuonsGenerator: (pz, pt) from the GMM of gmm_model.json, z from the Beta fit of z_beta_fit.json (paths relative to this file). Chunks of 1e7 muons, chunk i with seed seed + i.",
+    "gmm": "gmm_model.json",
+    "z": "z_beta_fit.json",
+    "seed": 0
+}
